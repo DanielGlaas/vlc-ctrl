@@ -23,6 +23,13 @@ class ClientSubcommands(Subcommand):
 
 
 	@subcmd
+	def launch(self):
+		'Launch VLC player.'
+
+		self.player_list_error_wrapped(self._players.launch)
+
+
+	@subcmd
 	def play(self, path=PathArg(opt=True), random=False, include=None, exclude=None, include_file=PathArg(opt=True), exclude_file=PathArg(opt=True)):
 		'''Play. Resume playback if paused. Optionally add new file/dir to the playlist.
 
