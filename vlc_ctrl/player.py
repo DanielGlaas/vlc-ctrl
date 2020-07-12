@@ -74,10 +74,11 @@ class Player(object):
 
 	def launch(self):
 		try:
-			r = Popen(['vlc'], stdout=DEVNULL, stderr=DEVNULL)
+			r = Popen(['vlc', '-I dummy'], stdout=DEVNULL, stderr=DEVNULL)
 		except OSError as e:
 			print(e)
 			raise PlayerError("cannot launch vlc, may be it's not installed")
+		print("vlc launch finished")
 
 
 	def play(self, path, filter):
@@ -127,7 +128,7 @@ class Player(object):
 	def mime_type_supported(self, filename):
 		if self._mime_types is None:
 			self._mime_types = self.get_prop('SupportedMimeTypes', self.main_interface)
-	
+
 		if mimetypes.guess_type(filename)[0] in self._mime_types:
 			return True
 		return False
@@ -182,7 +183,7 @@ class Player(object):
 	def set_volume(self, value):
 		self.set_prop('Volume', value)
 
-	
+
 	def fade_volume(self, target, time):
 		steps = int(time / 0.1)
 
@@ -215,7 +216,7 @@ class Player(object):
 		info['genre'] 	= unc(mget('xesam:genre')[0]) if mget('xesam:genre') is not None and len(mget('xesam:genre')) > 0 else None
 
 		return info
-		
+
 
 	def stop(self):
 		self._player.Stop()
@@ -242,7 +243,7 @@ class Player(object):
 			self.stop()
 			self.volume = saved_volume
 
-		self._main.Quit()		
+		self._main.Quit()
 
 
 	def __del__(self):
@@ -251,4 +252,3 @@ class Player(object):
 
 
 	volume=property(get_volume, set_volume)
-
