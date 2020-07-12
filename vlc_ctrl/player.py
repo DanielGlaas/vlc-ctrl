@@ -8,10 +8,18 @@ import os
 import mimetypes
 from subprocess import Popen
 import shlex
+from urllib.parse import urlparse
 
 from redlib.api.system import CronDBus, CronDBusError, in_cron, sys_command, DEVNULL
 from redlib.api.misc import Retry, log
 
+
+def uri_validator(x):
+    try:
+        result = urlparse(x)
+        return all([result.scheme, result.netloc, result.path])
+    except:
+        return False
 
 class PlayerError(Exception):
 	pass
@@ -71,7 +79,7 @@ class Player(object):
 			print(e)
 			raise PlayerError("cannot launch vlc, may be it's not installed")
 
-	
+
 	def play(self, path, filter):
 		if path is None:
 			self._player.Play()
@@ -79,14 +87,20 @@ class Player(object):
 
 		self.add(path, filter)
 
-			
+
 	def add(self, path, filter):
 		uqpath = shlex.split(path)[0]
 
-		if not exists(uqpath):
-			raise PlayerError('no such path: %s'%uqpath)
+		isurl = uri_validator(uqpath)
 
-		if isfile(uqpath):
+		if not exists(uqpath) and not isurl:
+			raise PlayerError('no such path or URL: %s'%uqpath)
+
+		if isurl:
+			self._tracklist.AddTrack(uqpath, self.obj_no_track, True)
+			return
+
+		elif isfile(uqpath):
 			if self.mime_type_supported(uqpath):
 				self._tracklist.AddTrack('file://' + uqpath, self.obj_no_track, True)
 			return
