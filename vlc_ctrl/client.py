@@ -188,6 +188,22 @@ class ClientSubcommands(Subcommand):
 
 
 	@subcmd
+	def path(self):
+		'Get the path of the current track.'
+
+		info = self.player_list_error_wrapped(self._players.track_info)
+
+		try:
+			# If the command DBUS command failed due to some reasons, then the next line will fail.
+			p = info["path"].decode('utf-8')
+
+			print(p)
+			return p
+		except:
+			return 0
+
+
+	@subcmd
 	def title(self):
 		'Get the title of the current track.'
 
@@ -195,8 +211,14 @@ class ClientSubcommands(Subcommand):
 
 		try:
 			# If the command DBUS command failed due to some reasons, then the next line will fail.
-			t = info["title"].decode('utf-8')
-			print(t)
+			t = info["title"]
+			if t is None:
+				# If no title is given fall back to the path of the media
+				t = self.path()
+			else:
+				t = t.decode('utf-8')
+				print(t)
+
 			return t
 		except:
 			return 0
