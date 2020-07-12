@@ -153,6 +153,14 @@ class Player(object):
 		self._player.Next()
 
 
+	def seek(self, offset):
+		self._player.Seek(offset)
+
+
+	def position(self):
+		return self.get_prop('Position')
+
+
 	def get_prop(self, name, iface=None):
 		if iface is None:
 			iface = self.player_interface

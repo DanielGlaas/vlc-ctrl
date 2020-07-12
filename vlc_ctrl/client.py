@@ -102,7 +102,7 @@ class ClientSubcommands(Subcommand):
 		fade:	time in seconds to fade in / out to the specified level'''
 
 		match = self.validate_input("([+-])?(\\d*\\.?\\d+)(%)?", level, 'invalid volume level value, see help for valid format')
-		
+
 		vol = float(match.group(2))
 		if match.group(3) == '%':
 			vol = vol / 100
@@ -146,11 +146,50 @@ class ClientSubcommands(Subcommand):
 			for line in lines[1:]:
 				print("{0:<10}  {1}".format('', line))
 
-	
+
+	@subcmd
+	def length(self):
+		'Get the lenght of the current track in seconds.'
+
+		info = self.player_list_error_wrapped(self._players.track_info)
+
+		l = info["length"].decode('utf-8')
+		print(l)
+		return l
+
+
+	@subcmd
+	def position(self):
+		'Get the position of the current track in micro seconds.'
+
+		pos = self.player_list_error_wrapped(self._players.position)
+
+		print(pos)
+		return pos
+
+
+	@subcmd
+	def seek(self, offset):
+		'Seek relativ to the current position of the current track in micro seconds.'
+
+		pos = self.player_list_error_wrapped(self._players.seek, offset)
+
+
+	@subcmd
+	def title(self):
+		'Get the title of the current track.'
+
+		info = self.player_list_error_wrapped(self._players.track_info)
+
+		l = info["title"].decode('utf-8')
+		print(l)
+		return l
+
+
 	@subcmd
 	def quit(self, condition=None, retry='1,0', fade='0'):
 		'''Quit vlc.
-		
+
 		condition: 	command to execute
 				if return code of command = 0, quit vlc, else not
 		retry:		retry count, delay in seconds between retries
