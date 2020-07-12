@@ -20,6 +20,12 @@ class ClientSubcommands(Subcommand):
 		except PlayerListError as e:
 			print(e)
 			raise CommandError()
+		except AttributeError as e:
+			# In case a command is sent to class Player and VLC is not running, the following error occurs:
+			# <<'NoneType' object has no attribute 'xyz'.>>
+			# This error is explicitly catched here to avoid crashing of the complete program.
+			print("VLC player is not running.")
+			return -1
 
 
 	@subcmd
@@ -153,7 +159,13 @@ class ClientSubcommands(Subcommand):
 
 		info = self.player_list_error_wrapped(self._players.track_info)
 
-		l = info["length"].decode('utf-8')
+		l = 0
+		try:
+			# If the command DBUS command failed due to some reasons, then the next line will fail.
+			l = info["length"].decode('utf-8')
+		except:
+			l = -1
+
 		print(l)
 		return l
 
@@ -172,7 +184,7 @@ class ClientSubcommands(Subcommand):
 	def seek(self, offset):
 		'Seek relativ to the current position of the current track in micro seconds.'
 
-		pos = self.player_list_error_wrapped(self._players.seek, offset)
+		self.player_list_error_wrapped(self._players.seek, offset)
 
 
 	@subcmd
@@ -181,9 +193,13 @@ class ClientSubcommands(Subcommand):
 
 		info = self.player_list_error_wrapped(self._players.track_info)
 
-		l = info["title"].decode('utf-8')
-		print(l)
-		return l
+		try:
+			# If the command DBUS command failed due to some reasons, then the next line will fail.
+			t = info["title"].decode('utf-8')
+			print(t)
+			return t
+		except:
+			return 0
 
 
 	@subcmd
